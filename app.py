@@ -610,7 +610,7 @@ def extract_text_from_pdf(pdf_file) -> dict:
     try:
         reader = PdfReader(pdf_file)
     except Exception:
-        logger.exception("Failed to read the uploaded PDF")
+        st.exception(e)
         raise
 
     text = ""
