@@ -618,8 +618,8 @@ graph = build_graph()
 def extract_text_from_pdf(pdf_file) -> dict:
     try:
         reader = PdfReader(pdf_file)
-    except Exception:
-        logger.exception("Failed to read the uploaded PDF")
+    except Exceptionan as e:
+        logger.exception(e)
         raise
 
     text = ""
@@ -791,8 +791,8 @@ if uploaded_pdf is not None and uploaded_pdf.name != st.session_state.pdf_name:
                 extraction["num_pages"],
                 chunking["num_chunks"],
             )
-        except Exception:
-            logger.exception("PDF processing failed")
+        except Exception as e:
+            logger.exception(e)
             st.session_state.pdf_ready = False
             st.session_state.retriever = None
             st.session_state.vector_store = None
