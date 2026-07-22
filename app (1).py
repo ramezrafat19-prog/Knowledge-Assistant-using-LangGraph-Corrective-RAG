@@ -56,7 +56,7 @@ EMBEDDING_MODEL = "models/embedding-001"
 def _resolve_google_api_key() -> str:
     """Resolve the Google API key from env vars or Streamlit secrets
     without clobbering a key that may already be configured."""
-    api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
+    api_key = "AQ.Ab8RN6L8d0COVDkNBGOjMSR8O6-gqAwsYX8P_pFdOcIoaIfFOg"
     if api_key:
         return api_key
     try:
