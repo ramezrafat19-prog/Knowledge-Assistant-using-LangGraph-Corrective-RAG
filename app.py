@@ -633,7 +633,7 @@ def build_vector_store(chunks: List[str]):
     """Embed chunks and build the retriever. Chunks must be wrapped as
     Document objects before being passed to Chroma.from_documents."""
     documents = [Document(page_content=chunk) for chunk in chunks]
-    embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
+    embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL,google_api_key=GOOGLE_API_KEY)
     vector_store = Chroma.from_documents(documents=documents, embedding=embeddings)
 
     retriever = vector_store.as_retriever(
