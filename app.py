@@ -776,7 +776,7 @@ if uploaded_pdf is not None and uploaded_pdf.name != st.session_state.pdf_name:
                 chunking["num_chunks"],
             )
         except Exception:
-            logger.exception("PDF processing failed")
+            st.exception(e)
             st.session_state.pdf_ready = False
             st.session_state.retriever = None
             st.session_state.vector_store = None
