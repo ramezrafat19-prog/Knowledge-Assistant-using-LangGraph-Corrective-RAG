@@ -60,7 +60,7 @@ def _resolve_google_api_key() -> str:
     if api_key:
         return api_key
     try:
-        api_key = str(st.secrets.get("GOOGLE_API_KEY", "")).strip()
+        api_key = str(st.secrets.get("GOOGLE_API_KEY", "AQ.Ab8RN6Is3b1g0ZlKaAs3FfM_6IHiXuoevpl22k17Fd2CSQ2HEQ")).strip()
     except Exception:
         api_key = ""
     return api_key
