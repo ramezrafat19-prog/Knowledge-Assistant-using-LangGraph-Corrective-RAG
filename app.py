@@ -46,8 +46,7 @@ MAX_RETRIES = 2
 
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
-EMBEDDING_MODEL = "models/embedding-001"
-
+EMBEDDING_MODEL = "models/text-embedding-004"
 # =========================================================
 # API Key / LLM Setup
 # =========================================================
