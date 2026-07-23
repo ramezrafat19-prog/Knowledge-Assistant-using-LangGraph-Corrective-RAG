@@ -33,7 +33,7 @@ VALID_ROUTES = ["direct", "retrieve", "decline"]
 
 def get_api_key() -> Optional[str]:
     # st.secrets first (Streamlit Cloud / local secrets.toml), then env var.
-    return "AQ.Ab8RN6I4GWVloBQZnvTNxqB-RrEw1mR5kKTdiW7TjbU9sK3v7g"
+    return "AQ.Ab8RN6IvJw_8YIgMHj3tClDyVVX8IKntzrmg2qjMlrUlGxYlcA"
 
 
 # =========================================================
@@ -41,7 +41,7 @@ def get_api_key() -> Optional[str]:
 # =========================================================
 @st.cache_resource(show_spinner=False)
 def get_llm() -> ChatGoogleGenerativeAI:
-    api_key = "AQ.Ab8RN6IitLbAjJ7nt-u2-xBWDgfQDi6CWCplUAAUiuFiZHWe0g"
+    api_key = "AQ.Ab8RN6IvJw_8YIgMHj3tClDyVVX8IKntzrmg2qjMlrUlGxYlcA"
     return ChatGoogleGenerativeAI(
     model=LLM_MODEL,
     google_api_key=api_key
