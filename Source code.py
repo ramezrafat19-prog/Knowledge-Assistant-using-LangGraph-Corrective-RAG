@@ -462,13 +462,17 @@ def build_vector_store(dataset_path: str):
     # Chroma.from_documents needs Document objects, not raw strings.
     documents = [Document(page_content=chunk) for chunk in chunked["chunks"]]
 
-    api_key = get_api_key()
-    if not api_key:
-        raise RuntimeError("GOOGLE_API_KEY not found for embeddings.")
-    os.environ["GOOGLE_API_KEY"] = api_key
+    api_key = "AQ.Ab8RN6IYWE1kMmHhaquRhHVCmJI_vLQSNiEt3rF7CV_YPUJITA"
 
-    embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL)
-    vector_store = Chroma.from_documents(documents=documents, embedding=embeddings)
+    embeddings = GoogleGenerativeAIEmbeddings(
+        model=EMBEDDING_MODEL,
+        google_api_key=api_key
+    )
+
+    vector_store = Chroma.from_documents(
+        documents=documents,
+        embedding=embeddings
+    )
 
     logger.info(
         "Vector store built: %s pages, %s chunks.",
