@@ -33,19 +33,19 @@ VALID_ROUTES = ["direct", "retrieve", "decline"]
 
 def get_api_key() -> Optional[str]:
     # st.secrets first (Streamlit Cloud / local secrets.toml), then env var.
-    return "AQ.Ab8RN6IvJw_8YIgMHj3tClDyVVX8IKntzrmg2qjMlrUlGxYlcA"
+    return "AQ.Ab8RN6IYWE1kMmHhaquRhHVCmJI_vLQSNiEt3rF7CV_YPUJITA"
 
 
 # =========================================================
 # LLM (cached - built once per session, not on every rerun)
 # =========================================================
 @st.cache_resource(show_spinner=False)
-def get_llm() -> ChatGoogleGenerativeAI:
-    api_key = "AQ.Ab8RN6IvJw_8YIgMHj3tClDyVVX8IKntzrmg2qjMlrUlGxYlcA"
+def get_llm():
+
     return ChatGoogleGenerativeAI(
-    model=LLM_MODEL,
-    google_api_key=api_key
-)
+        model="gemini-2.5-flash",
+        google_api_key=get_api_key()
+    )
     
 
 
