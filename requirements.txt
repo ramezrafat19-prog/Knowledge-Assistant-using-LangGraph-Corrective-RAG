@@ -6,3 +6,5 @@ langchain-text-splitters
 langgraph
 pypdf
 chromadb
+langchain-huggingface
+sentence-transformers
