@@ -65,7 +65,7 @@ logger = logging.getLogger("knowledge_assistant")
 DATASET_PATH = "RizooSphere Restaurant.pdf"  # predefined local dataset path
 
 LLM_MODEL = "gemini-2.5-flash"
-EMBEDDING_MODEL = "models/embedding-001"
+EMBEDDING_MODEL = "text-embedding-004"
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
 MAX_RETRIES = 2
