@@ -6,7 +6,8 @@ from typing import List, Optional, TypedDict
 import streamlit as st
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langgraph.graph import END, START, StateGraph
@@ -19,12 +20,14 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("knowledge_assistant")
 
 # =========================================================
-# Config (unchanged business logic, just centralized)
+# Config
 # =========================================================
 DATASET_PATH = "RizooSphere Restaurant.pdf"  # predefined local dataset path
 
 LLM_MODEL = "gemini-2.5-flash"
-EMBEDDING_MODEL = "models/text-embedding-004"
+# Local, free, no API key needed. Runs on CPU.
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 150
 MAX_RETRIES = 2
@@ -32,26 +35,35 @@ VALID_ROUTES = ["direct", "retrieve", "decline"]
 
 
 def get_api_key() -> Optional[str]:
-    # st.secrets first (Streamlit Cloud / local secrets.toml), then env var.
-    return "AQ.Ab8RN6IYWE1kMmHhaquRhHVCmJI_vLQSNiEt3rF7CV_YPUJITA"
+    return "AQ.Ab8RN6Jgb79Go4kQgVlcOk6pMaqZncFDw5kMf2qqpUlyL6uC2Q"
 
 
 # =========================================================
 # LLM (cached - built once per session, not on every rerun)
 # =========================================================
 @st.cache_resource(show_spinner=False)
-def get_llm():
-
+def get_llm() -> ChatGoogleGenerativeAI:
+    api_key = get_api_key()
+    if not api_key:
+        raise RuntimeError(
+            "GOOGLE_API_KEY not found. Set it in .streamlit/secrets.toml or as an env var."
+        )
     return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
-        google_api_key=get_api_key()
+        model=LLM_MODEL,
+        google_api_key=api_key,
     )
-    
 
 
 # =========================================================
-# Graph State (same fields as original + response_type,
-# which the UI already relied on but no node ever set)
+# Embeddings (cached - HuggingFace runs locally, no API key)
+# =========================================================
+@st.cache_resource(show_spinner=False)
+def get_embeddings() -> HuggingFaceEmbeddings:
+    return HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+
+
+# =========================================================
+# Graph State
 # =========================================================
 class GraphState(TypedDict):
     original_question: str
@@ -69,8 +81,7 @@ class GraphState(TypedDict):
 
 
 # =========================================================
-# Prompts (identical wording to the original; only the JSON
-# example braces are escaped so PromptTemplate.format() works)
+# Prompts (unchanged)
 # =========================================================
 ROUTER_PROMPT_V1 = """
 You are a routing classifier.
@@ -225,8 +236,7 @@ provided documentation.
 
 
 # =========================================================
-# JSON parsing helper (hardened: strips fences, guards against
-# empty/malformed content instead of raising an unhandled error)
+# JSON parsing helper
 # =========================================================
 def parse_json(response) -> dict:
     text = (response.content or "").strip()
@@ -237,8 +247,7 @@ def parse_json(response) -> dict:
 
 
 # =========================================================
-# Nodes (same names/edges/behavior as the original graph;
-# each now has logging + a safe fallback instead of crashing)
+# Nodes
 # =========================================================
 def router_node(state: GraphState) -> GraphState:
     question = state["question"]
@@ -376,7 +385,7 @@ def decline_node(state: GraphState) -> GraphState:
 
 
 # =========================================================
-# Graph (identical nodes/edges/conditional routing)
+# Graph
 # =========================================================
 def route_question(state: GraphState) -> str:
     return state["route"]
@@ -459,20 +468,11 @@ def build_vector_store(dataset_path: str):
     extracted = extract_text_from_pdf(dataset_path)
     chunked = create_chunks(extracted["text"])
 
-    # Chroma.from_documents needs Document objects, not raw strings.
     documents = [Document(page_content=chunk) for chunk in chunked["chunks"]]
 
-    api_key = "AQ.Ab8RN6IYWE1kMmHhaquRhHVCmJI_vLQSNiEt3rF7CV_YPUJITA"
-
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model=EMBEDDING_MODEL,
-        google_api_key=api_key
-    )
-
-    vector_store = Chroma.from_documents(
-        documents=documents,
-        embedding=embeddings
-    )
+    # HuggingFace embeddings run locally - no API key, no quota, no network calls.
+    embeddings = get_embeddings()
+    vector_store = Chroma.from_documents(documents=documents, embedding=embeddings)
 
     logger.info(
         "Vector store built: %s pages, %s chunks.",
@@ -491,8 +491,7 @@ def get_retriever():
 
 
 # =========================================================
-# Streamlit UI (same layout/sections as the original; upload
-# section removed, dataset status now reflects the auto-loaded file)
+# Streamlit UI
 # =========================================================
 st.set_page_config(
     page_title="RizooSphere Assistant",
@@ -508,7 +507,7 @@ if "sources" not in st.session_state:
     st.session_state.sources = []
 
 st.title("Knowledge Assistant")
-st.markdown("##### LangGraph + Corrective RAG + Gemini")
+st.markdown("##### LangGraph + Corrective RAG + Gemini + HuggingFace Embeddings")
 st.markdown("---")
 
 # --- Dataset Status ---
