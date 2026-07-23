@@ -1,44 +1,3 @@
-"""
-RizooSphere Knowledge Assistant
-LangGraph + Corrective RAG + Gemini
-
-Same architecture, nodes, edges, prompts and routing logic as the
-original notebook (see workflow diagram: Router -> Direct/Retrieve/Decline ->
-Grader -> Generate/Rewrite -> should_retry loop).
-
-Refactor notes (bug fixes only, no redesign):
-- Prompts had raw `{ }` JSON braces which broke PromptTemplate.format()
-  -> escaped as `{{ }}` (LangChain treats single braces as variables).
-- grader_node read output["relevant"] but GRADER_PROMPT actually returns
-  "relevance" -> fixed key + indentation (original had a mixed-indent
-  IndentationError).
-- rewrite_node called prompt.format(question="question") (literal string,
-  not the variable) -> fixed to use the real question.
-- retrieve_node referenced a global `retriever` before it was ever created,
-  and the notebook defined `retriever`/`vector_store` twice with different
-  settings (cell 21 vs the PDF-processing cell) -> consolidated into one
-  retriever, keeping the more complete config (MMR search, k=4, fetch_k=10).
-- create_chunks() returned raw strings but Chroma.from_documents() needs
-  Document objects -> fixed conversion.
-- GraphState was missing "response_type", which the UI already reads after
-  graph.invoke() -> added the field and set it in each terminal node
-  (direct/generate/decline), since the UI code expects it to exist.
-- graph.invoke() didn't seed "retries"/"documents"/"sources" -> now seeds
-  the full initial state so retrieve_node's state["retries"] += 1 can't KeyError.
-- No exception handling around LLM calls/JSON parsing outside router_node
-  -> added try/except + logging in every node, degrading gracefully instead
-  of crashing the whole app.
-- Hardcoded blank API key -> now read from st.secrets/env var.
-- Two disconnected Streamlit sections (one with TODO stubs + a file
-  uploader + a hardcoded "temporary testing" response, one with the real
-  PDF/vector-store code that was never wired up) -> merged into a single
-  flow, per your instructions upload removed and dataset loaded automatically
-  from DATASET_PATH.
-- Added st.cache_resource around LLM, embeddings, vector store, and graph
-  compilation so Streamlit doesn't rebuild all of this on every rerun
-  (startup time, retrieval speed, memory).
-"""
-
 import json
 import logging
 import os
@@ -83,6 +42,10 @@ def get_api_key() -> Optional[str]:
 @st.cache_resource(show_spinner=False)
 def get_llm() -> ChatGoogleGenerativeAI:
     api_key = "AQ.Ab8RN6IitLbAjJ7nt-u2-xBWDgfQDi6CWCplUAAUiuFiZHWe0g"
+    return ChatGoogleGenerativeAI(
+    model=LLM_MODEL,
+    google_api_key=api_key
+)
     
 
 
