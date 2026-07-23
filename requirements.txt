@@ -1,10 +1,9 @@
 streamlit
 langchain
+langgraph
 langchain-community
 langchain-google-genai
-langchain-text-splitters
-langgraph
-pypdf
-chromadb
 langchain-huggingface
 sentence-transformers
+chromadb
+pypdf
