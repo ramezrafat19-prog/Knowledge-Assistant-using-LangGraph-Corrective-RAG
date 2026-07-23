@@ -62,7 +62,7 @@ logger = logging.getLogger("knowledge_assistant")
 # =========================================================
 # Config (unchanged business logic, just centralized)
 # =========================================================
-DATASET_PATH = "data/knowledge_base.pdf"  # predefined local dataset path
+DATASET_PATH = "RizooSphere Restaurant.pdf"  # predefined local dataset path
 
 LLM_MODEL = "gemini-2.5-flash"
 EMBEDDING_MODEL = "models/embedding-001"
@@ -74,12 +74,7 @@ VALID_ROUTES = ["direct", "retrieve", "decline"]
 
 def get_api_key() -> Optional[str]:
     # st.secrets first (Streamlit Cloud / local secrets.toml), then env var.
-    try:
-        if "GOOGLE_API_KEY" in st.secrets:
-            return st.secrets["GOOGLE_API_KEY"]
-    except Exception:
-        pass
-    return os.environ.get("GOOGLE_API_KEY")
+    return os.environ.get("AQ.Ab8RN6I4GWVloBQZnvTNxqB-RrEw1mR5kKTdiW7TjbU9sK3v7g")
 
 
 # =========================================================
